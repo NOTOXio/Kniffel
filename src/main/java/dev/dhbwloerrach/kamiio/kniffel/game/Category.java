@@ -1,0 +1,10 @@
+package dev.dhbwloerrach.kamiio.kniffel.game;
+
+/**
+ * Enum für die Kniffel-Kategorien.
+ */
+public enum Category {
+    ONES, TWOS, THREES, FOURS, FIVES, SIXES,
+    THREE_OF_A_KIND, FOUR_OF_A_KIND, FULL_HOUSE,
+    SMALL_STRAIGHT, LARGE_STRAIGHT, KNIFFEL, CHANCE
+}

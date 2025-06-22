@@ -1,16 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.Button?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="dev.dhbwloerrach.kamiio.kniffel.HelloController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
+    <Label fx:id="welcomeText" text="Willkommen zu Kniffel!" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+    <HBox spacing="20" alignment="CENTER">
+        <VBox alignment="CENTER">
+            <Button fx:id="dice1Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice1Click"/>
+            <CheckBox fx:id="hold1Check" text="Halten"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Button fx:id="dice2Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice2Click"/>
+            <CheckBox fx:id="hold2Check" text="Halten"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Button fx:id="dice3Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice3Click"/>
+            <CheckBox fx:id="hold3Check" text="Halten"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Button fx:id="dice4Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice4Click"/>
+            <CheckBox fx:id="hold4Check" text="Halten"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Button fx:id="dice5Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice5Click"/>
+            <CheckBox fx:id="hold5Check" text="Halten"/>
+        </VBox>
+    </HBox>
+    <Label fx:id="rollsLeftLabel" text="Würfe übrig: 3" style="-fx-font-size: 16px;"/>
+    <HBox spacing="10">
+        <Button text="Würfeln" onAction="#onRollButtonClick" style="-fx-font-size: 16px;"/>
+        <ComboBox fx:id="categoryCombo" promptText="Kategorie wählen" style="-fx-font-size: 14px;"/>
+        <Button fx:id="submitCategoryButton" text="Kategorie wählen" onAction="#onSubmitCategoryClick" style="-fx-font-size: 14px;"/>
+    </HBox>
+    <Label fx:id="playerLabel" text="Am Zug: Spieler" style="-fx-font-size: 16px;"/>
+    <Label fx:id="scoreLabel" text="Punkte: 0" style="-fx-font-size: 16px;"/>
+    <TableView fx:id="categoryTable" prefWidth="350" style="-fx-font-size: 14px;">
+        <columns>
+            <TableColumn fx:id="categoryCol" text="Kategorie" prefWidth="120"/>
+            <TableColumn fx:id="statusCol" text="Status" prefWidth="100"/>
+            <TableColumn fx:id="valueCol" text="Wert" prefWidth="80"/>
+        </columns>
+    </TableView>
 </VBox>
