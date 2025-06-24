@@ -63,11 +63,12 @@ public class Game implements GameInterface {
         return rollsLeft;
     }
 
-    public void rollDice(boolean[] held) {
+    public void rollDice(boolean[] toRoll) {
         if (rollsLeft > 0) {
             for (int i = 0; i < DICE_COUNT; i++) {
-                diceList.get(i).setHeld(held[i]);
-                diceList.get(i).roll();
+                if (toRoll[i]) {
+                    diceList.get(i).roll();
+                }
             }
             rollsLeft--;
         }
@@ -76,6 +77,7 @@ public class Game implements GameInterface {
     public void resetDice() {
         for (Dice d : diceList) d.setHeld(false);
         rollsLeft = MAX_ROLLS;
-        for (Dice d : diceList) d.roll();
+        // Entferne das automatische Würfeln zu Beginn der Runde
+        // for (Dice d : diceList) d.roll();
     }
 }

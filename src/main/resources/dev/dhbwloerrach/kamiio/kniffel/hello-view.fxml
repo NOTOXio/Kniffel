@@ -5,48 +5,54 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="dev.dhbwloerrach.kamiio.kniffel.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText" text="Willkommen zu Kniffel!" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
-    <HBox spacing="20" alignment="CENTER">
-        <VBox alignment="CENTER">
-            <Button fx:id="dice1Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice1Click"/>
-            <CheckBox fx:id="hold1Check" text="Halten"/>
-        </VBox>
-        <VBox alignment="CENTER">
-            <Button fx:id="dice2Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice2Click"/>
-            <CheckBox fx:id="hold2Check" text="Halten"/>
-        </VBox>
-        <VBox alignment="CENTER">
-            <Button fx:id="dice3Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice3Click"/>
-            <CheckBox fx:id="hold3Check" text="Halten"/>
-        </VBox>
-        <VBox alignment="CENTER">
-            <Button fx:id="dice4Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice4Click"/>
-            <CheckBox fx:id="hold4Check" text="Halten"/>
-        </VBox>
-        <VBox alignment="CENTER">
-            <Button fx:id="dice5Btn" minWidth="60" minHeight="60" style="-fx-font-size: 36px;" onAction="#onDice5Click"/>
-            <CheckBox fx:id="hold5Check" text="Halten"/>
-        </VBox>
-    </HBox>
-    <Label fx:id="rollsLeftLabel" text="Würfe übrig: 3" style="-fx-font-size: 16px;"/>
-    <HBox spacing="10">
-        <Button text="Würfeln" onAction="#onRollButtonClick" style="-fx-font-size: 16px;"/>
-        <ComboBox fx:id="categoryCombo" promptText="Kategorie wählen" style="-fx-font-size: 14px;"/>
-        <Button fx:id="submitCategoryButton" text="Kategorie wählen" onAction="#onSubmitCategoryClick" style="-fx-font-size: 14px;"/>
-    </HBox>
-    <Label fx:id="playerLabel" text="Am Zug: Spieler" style="-fx-font-size: 16px;"/>
-    <Label fx:id="scoreLabel" text="Punkte: 0" style="-fx-font-size: 16px;"/>
-    <TableView fx:id="categoryTable" prefWidth="350" style="-fx-font-size: 14px;">
-        <columns>
-            <TableColumn fx:id="categoryCol" text="Kategorie" prefWidth="120"/>
-            <TableColumn fx:id="statusCol" text="Status" prefWidth="100"/>
-            <TableColumn fx:id="valueCol" text="Wert" prefWidth="80"/>
-        </columns>
-    </TableView>
-</VBox>
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="dev.dhbwloerrach.kamiio.kniffel.HelloController">
+    <VBox fx:id="mainVBox" alignment="CENTER" spacing="24.0"
+          style="-fx-background-color: linear-gradient(to bottom, #f8fafc, #e0e7ef); -fx-padding: 32px; -fx-border-radius: 16px; -fx-background-radius: 16px;">
+        <Label fx:id="welcomeText" text="Willkommen zu Kniffel!" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+        <HBox spacing="28" alignment="CENTER">
+            <VBox alignment="CENTER">
+                <Button fx:id="dice1Btn" minWidth="70" minHeight="70" style="-fx-font-size: 40px; -fx-background-radius: 16px; -fx-background-color: #fff; -fx-border-color: #cbd5e1; -fx-border-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 6, 0.2, 0, 2);" onAction="#onDice1Click"/>
+            </VBox>
+            <VBox alignment="CENTER">
+                <Button fx:id="dice2Btn" minWidth="70" minHeight="70" style="-fx-font-size: 40px; -fx-background-radius: 16px; -fx-background-color: #fff; -fx-border-color: #cbd5e1; -fx-border-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 6, 0.2, 0, 2);" onAction="#onDice2Click"/>
+            </VBox>
+            <VBox alignment="CENTER">
+                <Button fx:id="dice3Btn" minWidth="70" minHeight="70" style="-fx-font-size: 40px; -fx-background-radius: 16px; -fx-background-color: #fff; -fx-border-color: #cbd5e1; -fx-border-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 6, 0.2, 0, 2);" onAction="#onDice3Click"/>
+            </VBox>
+            <VBox alignment="CENTER">
+                <Button fx:id="dice4Btn" minWidth="70" minHeight="70" style="-fx-font-size: 40px; -fx-background-radius: 16px; -fx-background-color: #fff; -fx-border-color: #cbd5e1; -fx-border-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 6, 0.2, 0, 2);" onAction="#onDice4Click"/>
+            </VBox>
+            <VBox alignment="CENTER">
+                <Button fx:id="dice5Btn" minWidth="70" minHeight="70" style="-fx-font-size: 40px; -fx-background-radius: 16px; -fx-background-color: #fff; -fx-border-color: #cbd5e1; -fx-border-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 6, 0.2, 0, 2);" onAction="#onDice5Click"/>
+            </VBox>
+        </HBox>
+        <Label fx:id="rollsLeftLabel" text="Würfe übrig: 3" style="-fx-font-size: 18px; -fx-text-fill: #475569;"/>
+        <HBox spacing="16" alignment="CENTER">
+            <Button text="Würfeln" onAction="#onRollButtonClick" style="-fx-font-size: 18px; -fx-background-color: #38bdf8; -fx-text-fill: white; -fx-background-radius: 12px; -fx-padding: 8 24;"/>
+            <ComboBox fx:id="categoryCombo" promptText="Kategorie wählen" style="-fx-font-size: 16px; -fx-background-radius: 8px;"/>
+            <Button fx:id="submitCategoryButton" text="Kategorie wählen" onAction="#onSubmitCategoryClick" style="-fx-font-size: 16px; -fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-radius: 12px; -fx-padding: 8 18;"/>
+        </HBox>
+        <Label fx:id="playerLabel" text="Am Zug: Spieler" style="-fx-font-size: 18px; -fx-text-fill: #334155;"/>
+        <Label fx:id="scoreLabel" text="Punkte: 0" style="-fx-font-size: 18px; -fx-text-fill: #334155;"/>
+        <TableView fx:id="categoryTable" prefWidth="400" style="-fx-font-size: 16px; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, #cbd5e1, 4, 0.1, 0, 1);">
+            <columns>
+                <TableColumn fx:id="categoryCol" text="Kategorie" prefWidth="140"/>
+                <TableColumn fx:id="statusCol" text="Status" prefWidth="110"/>
+                <TableColumn fx:id="valueCol" text="Wert" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </VBox>
+    <VBox fx:id="nameInputVBox" alignment="CENTER" spacing="18.0"
+          style="-fx-background-color: rgba(255,255,255,0.95); -fx-padding: 36px; -fx-border-radius: 16px; -fx-background-radius: 16px; -fx-effect: dropshadow(gaussian, #cbd5e1, 8, 0.2, 0, 2);">
+        <Label text="Spielernamen eingeben" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2d3748;"/>
+        <HBox spacing="12">
+            <Label text="Spieler 1:" style="-fx-font-size: 16px;"/>
+            <TextField fx:id="player1NameField" promptText="Name Spieler 1" style="-fx-font-size: 16px;"/>
+        </HBox>
+        <HBox spacing="12">
+            <Label text="Spieler 2:" style="-fx-font-size: 16px;"/>
+            <TextField fx:id="player2NameField" promptText="Name Spieler 2" style="-fx-font-size: 16px;"/>
+        </HBox>
+        <Button text="Spiel starten" fx:id="startGameButton" style="-fx-font-size: 18px; -fx-background-color: #38bdf8; -fx-text-fill: white; -fx-background-radius: 12px; -fx-padding: 8 24;" onAction="#onStartGameClick"/>
+    </VBox>
+</StackPane>
