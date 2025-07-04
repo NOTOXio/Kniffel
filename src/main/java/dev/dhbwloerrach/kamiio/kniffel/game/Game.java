@@ -8,16 +8,24 @@ import dev.dhbwloerrach.kamiio.kniffel.utils.KniffelScorer;
 
 /**
  * Zentrale Spiellogik für Kniffel.
+ * Diese Klasse verwaltet den gesamten Spielablauf, einschließlich Spielerwechsel,
+ * Würfelvorgänge und die Verwaltung des Spielzustands.
  */
 public class Game implements GameInterface {
-    private List<Player> players;
+    private final List<Player> players;
     private int currentPlayerIndex;
     private boolean gameOver;
-    private List<Dice> diceList;
+    private final List<Dice> diceList;
     private int rollsLeft;
     public static final int MAX_ROLLS = 3;
     public static final int DICE_COUNT = 5;
 
+    /**
+     * Erstellt ein neues Kniffel-Spiel mit den angegebenen Spielern.
+     * Initialisiert alle nötigen Spielkomponenten wie Würfel und Spielzustand.
+     *
+     * @param players Liste der teilnehmenden Spieler
+     */
     public Game(List<Player> players) {
         this.players = players;
         this.currentPlayerIndex = 0;
@@ -29,6 +37,11 @@ public class Game implements GameInterface {
         this.rollsLeft = MAX_ROLLS;
     }
 
+    /**
+     * Startet ein neues Spiel.
+     * Setzt alle Spieler zurück, initialisiert die Würfel
+     * und bereitet die erste Spielrunde vor.
+     */
     @Override
     public void startGame() {
         // Startlogik, z.B. Spielerreihenfolge festlegen
@@ -38,6 +51,11 @@ public class Game implements GameInterface {
         resetDice();
     }
 
+    /**
+     * Wechselt zum nächsten Spieler und bereitet dessen Zug vor.
+     * Prüft, ob das Spiel beendet ist und führt bei Computer-Spielern
+     * automatisch den Zug aus.
+     */
     @Override
     public void nextTurn() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
@@ -119,6 +137,12 @@ public class Game implements GameInterface {
         return rollsLeft;
     }
 
+    /**
+     * Führt einen Würfelvorgang mit den angegebenen Würfeln durch.
+     * Nur nicht festgehaltene Würfel werden neu gewürfelt.
+     *
+     * @param toRoll Array, das angibt, welche Würfel neu gewürfelt werden sollen (true = würfeln)
+     */
     public void rollDice(boolean[] toRoll) {
         if (rollsLeft > 0) {
             for (int i = 0; i < DICE_COUNT; i++) {
@@ -130,6 +154,10 @@ public class Game implements GameInterface {
         }
     }
 
+    /**
+     * Setzt alle Würfel zurück und stellt die maximale Anzahl an Würfen wieder her.
+     * Wird beim Spielerwechsel und zu Beginn eines neuen Spiels aufgerufen.
+     */
     public void resetDice() {
         for (Dice d : diceList) d.setHeld(false);
         rollsLeft = MAX_ROLLS;

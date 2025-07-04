@@ -5,5 +5,4 @@ Lies und berücksichtige immer zuerst den Programmentwurf.
 Kommentiere ausschließlich mit Javadoc, und halte sonstige Kommentare so kurz wie möglich.
 Gib konkrete, umsetzbare Vorschläge (z. B. Code, Diagramme, Architekturbeschreibungen).
 Frage nach, falls Anforderungen unklar sind.
-Falls ich keine spezifische Frage stelle, fokussiere dich auf das Ziel: Unterstützung bei der praktischen Umsetzung des Programmentwurfs.
 }

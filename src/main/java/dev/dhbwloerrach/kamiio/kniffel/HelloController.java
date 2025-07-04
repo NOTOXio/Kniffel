@@ -15,7 +15,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -148,9 +147,19 @@ public class HelloController {
         if (dice4Btn != null) dice4Btn.setText(DICE_UNICODE[0]);
         if (dice5Btn != null) dice5Btn.setText(DICE_UNICODE[0]);
 
-        // Spielhistorie initialisieren
+        // Spielhistorie initialisieren und stylen
         if (gameHistoryArea != null) {
-            gameHistoryArea.setText("Neues Spiel gestartet.\n");
+            gameHistoryArea.setText("Willkommen bei Kniffel! Die Spielhistorie wird hier angezeigt.\n");
+
+            // Schöneres Styling für die Textfläche
+            gameHistoryArea.setStyle("-fx-control-inner-background: #f8fafc; " + // Hintergrund
+                                   "-fx-font-family: 'Consolas', 'Monaco', monospace; " + // Font
+                                   "-fx-font-size: 12px; " + // Schriftgröße
+                                   "-fx-border-color: #cbd5e1; " + // Rahmenfarbe
+                                   "-fx-border-radius: 8; " + // Rahmenradius
+                                   "-fx-background-radius: 8; " + // Hintergrundradius
+                                   "-fx-border-width: 1.5; " + // Rahmenstärke
+                                   "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 4, 0.0, 0, 1);"); // Schatten
         }
     }
 
@@ -208,7 +217,7 @@ public class HelloController {
 
         // Spielhistorie zurücksetzen
         gameHistory.setLength(0);
-        addToGameHistory("Neues Spiel gestartet: " + name1 + " vs. " + name2);
+        addToGameHistory("Neues Spiel gestartet: " + name1 + " vs. " + name2, true);
         if (isComputerOpponent) {
             addToGameHistory(name1 + " spielt gegen den Computer (" + name2 + ")");
         }
@@ -221,13 +230,37 @@ public class HelloController {
      * Fügt einen Eintrag zur Spielhistorie hinzu.
      *
      * @param entry Der hinzuzufügende Eintrag
+     * @param isImportant Ob der Eintrag hervorgehoben werden soll
      */
-    private void addToGameHistory(String entry) {
-        gameHistory.append(entry).append("\n");
+    private void addToGameHistory(String entry, boolean isImportant) {
+        // Zeitstempel erstellen (nur Stunden:Minuten:Sekunden)
+        java.time.LocalTime now = java.time.LocalTime.now();
+        String timestamp = String.format("[%02d:%02d:%02d] ", now.getHour(), now.getMinute(), now.getSecond());
+
+        // Hervorhebung für wichtige Ereignisse
+        String formattedEntry;
+        if (isImportant) {
+            formattedEntry = "➤ " + entry;
+        } else {
+            formattedEntry = "• " + entry;
+        }
+
+        // Zum Verlauf hinzufügen
+        gameHistory.append(timestamp).append(formattedEntry).append("\n");
+
         if (gameHistoryArea != null) {
             gameHistoryArea.setText(gameHistory.toString());
             gameHistoryArea.positionCaret(gameHistoryArea.getText().length());
         }
+    }
+
+    /**
+     * Fügt einen normalen (nicht hervorgehobenen) Eintrag zur Spielhistorie hinzu.
+     *
+     * @param entry Der hinzuzufügende Eintrag
+     */
+    private void addToGameHistory(String entry) {
+        addToGameHistory(entry, false);
     }
 
     /**
@@ -376,6 +409,14 @@ public class HelloController {
             int points = KniffelScorer.calculateScore(cat, game.getDiceList());
             current.addScore(cat, points);
 
+            // Spielzug protokollieren
+            String diceValues = game.getDiceList().stream()
+                .map(dice -> String.valueOf(dice.getValue()))
+                .collect(Collectors.joining(", "));
+
+            addToGameHistory(current.getName() + " wählt " + cat.name() +
+                             " mit Würfeln [" + diceValues + "] für " + points + " Punkte");
+
             // Zurücksetzen der UI-Elemente
             categoryCombo.setValue(null);
             firstRollDone = false;
@@ -449,6 +490,15 @@ public class HelloController {
                                 Timeline timeline6 = new Timeline(new KeyFrame(Duration.seconds(1), e6 -> {
                                     int points = KniffelScorer.calculateScore(bestCategory, game.getDiceList());
                                     computerPlayer.addScore(bestCategory, points);
+
+                                    // Computer-Spielzug protokollieren
+                                    String diceValues = game.getDiceList().stream()
+                                        .map(dice -> String.valueOf(dice.getValue()))
+                                        .collect(Collectors.joining(", "));
+
+                                    addToGameHistory("Computer wählt " + bestCategory.name() +
+                                                   " mit Würfeln [" + diceValues + "] für " + points + " Punkte");
+
                                     game.nextTurn();
                                     updateUI();
 
@@ -544,8 +594,11 @@ public class HelloController {
             for (dev.dhbwloerrach.kamiio.kniffel.game.Player p : game.getPlayers()) {
                 sb.append(p.getName()).append(": ").append(p.getScore()).append(" Punkte\n");
             }
-            addToGameHistory("Spiel beendet. Gewinner: " + getWinnerName());
+            addToGameHistory("Spiel beendet. Gewinner: " + getWinnerName(), true);
             addToGameHistory(sb.toString());
+
+            // Game Over Panel mit Revanche-Option anzeigen
+            showGameOverPanel();
 
             // Kategorie-Auswahl deaktivieren
             categoryCombo.setDisable(true);
@@ -637,21 +690,6 @@ public class HelloController {
         }
 
         categoryTable.setItems(data);
-
-        // Markiere bereits eingelöste Kategorien in der Tabelle
-        categoryTable.setRowFactory(tv -> new TableRow<CategoryRow>() {
-            @Override
-            protected void updateItem(CategoryRow item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setStyle("");
-                } else if ("Eingelöst".equals(item.getStatus())) {
-                    setStyle("-fx-background-color: #e0e0e0; -fx-font-weight: bold;");
-                } else {
-                    setStyle("");
-                }
-            }
-        });
     }    /**
      * Aktualisiert den Zustand des Wählen-Buttons basierend auf dem Spielstatus.
      * Der Button ist nur aktiviert, wenn bereits gewürfelt wurde und eine Kategorie ausgewählt ist.
@@ -713,6 +751,288 @@ public class HelloController {
     private String getWinnerName() {
         dev.dhbwloerrach.kamiio.kniffel.game.Player winner = game.getWinner();
         return winner != null ? winner.getName() : "Kein Gewinner";
+    }
+
+    /**
+     * Startet eine neue Runde mit den gleichen Spielern (Revanche).
+     */
+    private void startRematch() {
+        // Spiel neu starten mit den gleichen Spielern
+        game.startGame();
+
+        // UI zurücksetzen
+        firstRollDone = false;
+        for (int i = 0; i < 5; i++) {
+            diceHeld[i] = false;
+            updateDiceButtonStyle(i);
+        }
+
+        // Kategorie-ComboBox zurücksetzen und aktivieren
+        categoryCombo.getItems().setAll(dev.dhbwloerrach.kamiio.kniffel.game.Category.values());
+        categoryCombo.setDisable(true);
+        categoryCombo.setValue(null);
+
+        // Spielhistorie-Eintrag
+        addToGameHistory("Neue Runde gestartet (Revanche)", true);
+
+        // UI aktualisieren
+        updateUI();
+
+        // Animation für den Neustart zeigen
+        showRevancheAnimation();
+    }
+
+    /**
+     * Kehrt zum Hauptmenü zurück und setzt das Spiel zurück.
+     */
+    private void returnToMainMenu() {
+        // Spielhistorie-Eintrag
+        addToGameHistory("Zurück zum Hauptmenü", true);
+
+        // UI umschalten
+        nameInputVBox.setVisible(true);
+        mainVBox.setVisible(false);
+
+        // Spieler-Namen aus dem vorherigen Spiel übernehmen
+        if (players.size() >= 2) {
+            player1NameField.setText(players.get(0).getName());
+            player2NameField.setText(players.get(1).getName());
+
+            // Computer-Spieler-Checkbox richtig setzen
+            boolean wasComputer = players.get(1) instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer;
+            if (computerOpponentCheckBox != null) {
+                computerOpponentCheckBox.setSelected(wasComputer);
+                if (wasComputer) {
+                    computerOpponentCheckBox.setText("Ein");
+                    computerOpponentCheckBox.setStyle("-fx-font-size: 16px; -fx-background-radius: 20; -fx-min-width: 100; -fx-padding: 8 24; " +
+                                                    "-fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-insets: 0;");
+                } else {
+                    computerOpponentCheckBox.setText("Aus");
+                    computerOpponentCheckBox.setStyle("-fx-font-size: 16px; -fx-background-radius: 20; -fx-min-width: 100; -fx-padding: 8 24; " +
+                                                    "-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-background-insets: 0;");
+                }
+            }
+
+            // Spieler-Input entsprechend anpassen
+            if (player2Box_input != null) {
+                player2Box_input.setVisible(!wasComputer);
+                player2Box_input.setManaged(!wasComputer);
+            }
+        }
+
+        // Würfel zurücksetzen
+        dice1Btn.setText(DICE_UNICODE[0]);
+        dice2Btn.setText(DICE_UNICODE[0]);
+        dice3Btn.setText(DICE_UNICODE[0]);
+        dice4Btn.setText(DICE_UNICODE[0]);
+        dice5Btn.setText(DICE_UNICODE[0]);
+
+        // Welcome-Text zurücksetzen
+        welcomeText.setText("Willkommen zu Kniffel!");
+    }
+
+    /**
+     * Zeigt eine Animation für den Start einer Revanche an.
+     */
+    private void showRevancheAnimation() {
+        // Halbdurchsichtiger Hintergrund für Popup-Effekt
+        javafx.scene.layout.StackPane overlay = new javafx.scene.layout.StackPane();
+        overlay.setPrefSize(mainVBox.getWidth(), mainVBox.getHeight());
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); // Halbdurchsichtiger schwarzer Hintergrund
+
+        // Revanche-Panel erstellen
+        VBox revanchePanel = new VBox(15);
+        revanchePanel.setAlignment(javafx.geometry.Pos.CENTER);
+        revanchePanel.setPrefWidth(400);
+        revanchePanel.setPrefHeight(200);
+        revanchePanel.setStyle("-fx-background-color: white; -fx-background-radius: 20; " +
+                           "-fx-border-color: #22c55e; -fx-border-width: 2; -fx-border-radius: 20; " +
+                           "-fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.0, 0, 10);");
+        revanchePanel.setMaxWidth(400);
+        revanchePanel.setMaxHeight(200);
+
+        // Würfel-Icon hinzufügen
+        Label diceLabel = new Label("🎲");
+        diceLabel.setStyle("-fx-font-size: 40px;");
+
+        // Neue Runde Text
+        Label revancheLabel = new Label("Neue Runde!");
+        revancheLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #16a34a;");
+
+        // Viel Glück Text
+        Label goodLuckLabel = new Label("Viel Glück!");
+        goodLuckLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #334155;");
+
+        // Alles zum Panel hinzufügen
+        revanchePanel.getChildren().addAll(diceLabel, revancheLabel, goodLuckLabel);
+
+        // Das Panel zum Overlay hinzufügen (zentriert)
+        overlay.getChildren().add(revanchePanel);
+
+        // Das Overlay zum Haupt-Layout hinzufügen
+        javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) mainVBox.getScene().getRoot();
+        rootPane.getChildren().add(overlay);
+
+        // Overlay an die Größe des Fensters anpassen
+        overlay.prefWidthProperty().bind(rootPane.widthProperty());
+        overlay.prefHeightProperty().bind(rootPane.heightProperty());
+
+        // Animation für das Einblenden
+        revanchePanel.setScaleX(0.5);
+        revanchePanel.setScaleY(0.5);
+        revanchePanel.setOpacity(0);
+
+        // Overlay zunächst unsichtbar
+        overlay.setOpacity(0);
+
+        // Animationen
+        javafx.animation.Timeline popupTimeline = new javafx.animation.Timeline();
+        popupTimeline.getKeyFrames().addAll(
+            new KeyFrame(Duration.ZERO,
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 0),
+                new javafx.animation.KeyValue(revanchePanel.scaleXProperty(), 0.5),
+                new javafx.animation.KeyValue(revanchePanel.scaleYProperty(), 0.5),
+                new javafx.animation.KeyValue(revanchePanel.opacityProperty(), 0)),
+            new KeyFrame(Duration.seconds(0.15),
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 1)),
+            new KeyFrame(Duration.seconds(0.3),
+                new javafx.animation.KeyValue(revanchePanel.scaleXProperty(), 1),
+                new javafx.animation.KeyValue(revanchePanel.scaleYProperty(), 1),
+                new javafx.animation.KeyValue(revanchePanel.opacityProperty(), 1)),
+            new KeyFrame(Duration.seconds(1.5),
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 1)),
+            new KeyFrame(Duration.seconds(1.8),
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 0),
+                new javafx.animation.KeyValue(revanchePanel.opacityProperty(), 0))
+        );
+
+        // Entferne das Overlay wenn die Animation fertig ist
+        popupTimeline.setOnFinished(e -> rootPane.getChildren().remove(overlay));
+
+        // Animation starten
+        popupTimeline.play();
+    }
+
+    /**
+     * Zeigt das Spielende-Panel mit Optionen für Revanche oder Spiel beenden an.
+     * Dieses Panel wird angezeigt, nachdem ein Spiel abgeschlossen ist.
+     */
+    private void showGameOverPanel() {
+        // Halbdurchsichtiger Hintergrund für Popup-Effekt
+        javafx.scene.layout.StackPane overlay = new javafx.scene.layout.StackPane();
+        overlay.setPrefSize(mainVBox.getWidth(), mainVBox.getHeight());
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);"); // Halbdurchsichtiger schwarzer Hintergrund
+
+        // Game-Over-Panel erstellen
+        VBox gameOverPanel = new VBox(15);
+        gameOverPanel.setAlignment(javafx.geometry.Pos.CENTER);
+        gameOverPanel.setPrefWidth(500);
+        gameOverPanel.setPrefHeight(250);
+        gameOverPanel.setStyle("-fx-background-color: white; -fx-background-radius: 20; " +
+                             "-fx-border-color: #22c55e; -fx-border-width: 2; -fx-border-radius: 20; " +
+                             "-fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 15, 0.0, 0, 10);");
+        gameOverPanel.setMaxWidth(500);
+        gameOverPanel.setMaxHeight(250);
+
+        // Sieger ermitteln
+        dev.dhbwloerrach.kamiio.kniffel.game.Player winner = game.getWinner();
+        String winnerName = winner != null ? winner.getName() : "Kein Gewinner";
+        boolean isComputerWinner = winner instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer;
+
+        // Icon je nach Gewinner wählen
+        Label trophyLabel = new Label(isComputerWinner ? "🤖" : "🏆");
+        trophyLabel.setStyle("-fx-font-size: 40px;");
+
+        // Text je nach Gewinner anpassen
+        Label winnerLabel;
+        if (isComputerWinner) {
+            winnerLabel = new Label("Schade! Der Computer hat gewonnen.");
+            winnerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ef4444;"); // Rote Färbung für Niederlage
+        } else {
+            winnerLabel = new Label("Glückwunsch " + winnerName + "!");
+            winnerLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #16a34a;"); // Grüne Färbung für Sieg
+        }
+
+        // Punkte
+        int winnerScore = winner.getScore();
+        Label scoreLabel = new Label("Punktzahl: " + winnerScore);
+        scoreLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #334155;");
+
+        // Buttons für die Aktionen
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(javafx.geometry.Pos.CENTER);
+        buttonBox.setPadding(new javafx.geometry.Insets(10, 0, 0, 0));
+
+        // Revanche-Button
+        Button rematchButton = new Button("Revanche");
+        rematchButton.setStyle("-fx-font-size: 16px; -fx-background-color: #22c55e; -fx-text-fill: white; " +
+                             "-fx-background-radius: 8; -fx-padding: 10 25; -fx-font-weight: bold; " +
+                             "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);");
+        rematchButton.setOnAction(e -> {
+            // Entferne das Overlay
+            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) mainVBox.getScene().getRoot();
+            rootPane.getChildren().remove(overlay);
+
+            // Starte Revanche
+            startRematch();
+        });
+
+        // Beenden-Button
+        Button quitButton = new Button("Zurück zum Menü");
+        quitButton.setStyle("-fx-font-size: 16px; -fx-background-color: #f1f5f9; -fx-text-fill: #334155; " +
+                          "-fx-background-radius: 8; -fx-padding: 10 25; -fx-font-weight: bold; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);");
+        quitButton.setOnAction(e -> {
+            // Entferne das Overlay
+            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) mainVBox.getScene().getRoot();
+            rootPane.getChildren().remove(overlay);
+
+            // Zurück zum Hauptmenü
+            returnToMainMenu();
+        });
+
+        // Buttons hinzufügen
+        buttonBox.getChildren().addAll(rematchButton, quitButton);
+
+        // Alles zum Panel hinzufügen
+        gameOverPanel.getChildren().addAll(trophyLabel, winnerLabel, scoreLabel, buttonBox);
+
+        // Das Panel zum Overlay hinzufügen (zentriert)
+        overlay.getChildren().add(gameOverPanel);
+
+        // Das Overlay zum Haupt-Layout hinzufügen
+        javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) mainVBox.getScene().getRoot();
+        rootPane.getChildren().add(overlay);
+
+        // Overlay an die Größe des Fensters anpassen
+        overlay.prefWidthProperty().bind(rootPane.widthProperty());
+        overlay.prefHeightProperty().bind(rootPane.heightProperty());
+
+        // Animation für das Einblenden
+        gameOverPanel.setScaleX(0.5);
+        gameOverPanel.setScaleY(0.5);
+        gameOverPanel.setOpacity(0);
+
+        // Overlay zunächst unsichtbar
+        overlay.setOpacity(0);
+
+        // Animationen
+        javafx.animation.Timeline popupTimeline = new javafx.animation.Timeline();
+        popupTimeline.getKeyFrames().addAll(
+            new KeyFrame(Duration.ZERO,
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 0),
+                new javafx.animation.KeyValue(gameOverPanel.scaleXProperty(), 0.5),
+                new javafx.animation.KeyValue(gameOverPanel.scaleYProperty(), 0.5),
+                new javafx.animation.KeyValue(gameOverPanel.opacityProperty(), 0)),
+            new KeyFrame(Duration.seconds(0.3),
+                new javafx.animation.KeyValue(overlay.opacityProperty(), 1)),
+            new KeyFrame(Duration.seconds(0.5),
+                new javafx.animation.KeyValue(gameOverPanel.scaleXProperty(), 1),
+                new javafx.animation.KeyValue(gameOverPanel.scaleYProperty(), 1),
+                new javafx.animation.KeyValue(gameOverPanel.opacityProperty(), 1))
+        );
+
+        popupTimeline.play();
     }
 
     /**
