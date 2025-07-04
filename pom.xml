@@ -8,7 +8,6 @@
     <artifactId>Kniffel</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Kniffel</name>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
@@ -86,7 +85,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                dev.dhbwloerrach.kamiio.kniffel/dev.dhbwloerrach.kamiio.kniffel.App
+                                dev.dhbwloerrach.kamiio.kniffel/dev.dhbwloerrach.kamiio.kniffel.app.App
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
