@@ -1,8 +1,10 @@
 package dev.dhbwloerrach.kamiio.kniffel.game;
 
-import dev.dhbwloerrach.kamiio.kniffel.Dice;
 import java.util.ArrayList;
 import java.util.List;
+
+import dev.dhbwloerrach.kamiio.kniffel.Dice;
+import dev.dhbwloerrach.kamiio.kniffel.utils.KniffelScorer;
 
 /**
  * Zentrale Spiellogik für Kniffel.
@@ -40,6 +42,49 @@ public class Game implements GameInterface {
     public void nextTurn() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         resetDice();
+
+        // Prüfe, ob das Spiel beendet ist
+        if (players.stream().allMatch(Player::allCategoriesUsed)) {
+            gameOver = true;
+        }
+
+        // Falls der nächste Spieler ein ComputerPlayer ist und das Spiel noch nicht beendet ist,
+        // führe den Computer-Zug automatisch aus
+        if (!gameOver && getCurrentPlayer() instanceof ComputerPlayer) {
+            executeComputerTurn();
+        }
+    }
+
+    /**
+     * Führt einen vollständigen Zug für den Computer-Spieler aus.
+     */
+    private void executeComputerTurn() {
+        ComputerPlayer computerPlayer = (ComputerPlayer) getCurrentPlayer();
+
+        // 1. Erster Würfelwurf
+        boolean[] allDice = new boolean[DICE_COUNT];
+        for (int i = 0; i < DICE_COUNT; i++) allDice[i] = true;
+        rollDice(allDice);
+
+        // 2. Entscheide, welche Würfel behalten werden sollen (für bis zu 2 weitere Würfe)
+        for (int i = 0; i < 2; i++) {
+            if (rollsLeft > 0) {
+                boolean[] toRoll = computerPlayer.decideDiceToRoll(diceList);
+                rollDice(toRoll);
+            }
+        }
+
+        // 3. Wähle die beste Kategorie und trage Punkte ein
+        Category bestCategory = computerPlayer.chooseBestCategory(diceList);
+        int points = KniffelScorer.calculateScore(bestCategory, diceList);
+        computerPlayer.addScore(bestCategory, points);
+
+        // 4. Zug zum nächsten Spieler wechseln ohne rekursiven Aufruf
+        // Wir wechseln nur den Spieler und setzen die Würfel zurück, ohne nextTurn() zu verwenden
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        resetDice();
+
+        // Prüfe, ob das Spiel beendet ist
         if (players.stream().allMatch(Player::allCategoriesUsed)) {
             gameOver = true;
         }
@@ -53,6 +98,17 @@ public class Game implements GameInterface {
     @Override
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
+    }
+
+    /**
+     * Gibt den Spieler zurück, der die meisten Punkte hat (Gewinner).
+     *
+     * @return Der Spieler mit den meisten Punkten
+     */
+    public Player getWinner() {
+        return players.stream()
+            .max((a, b) -> Integer.compare(a.getScore(), b.getScore()))
+            .orElse(null);
     }
 
     public List<Dice> getDiceList() {
@@ -77,7 +133,23 @@ public class Game implements GameInterface {
     public void resetDice() {
         for (Dice d : diceList) d.setHeld(false);
         rollsLeft = MAX_ROLLS;
-        // Entferne das automatische Würfeln zu Beginn der Runde
-        // for (Dice d : diceList) d.roll();
+    }
+
+    /**
+     * Fügt einen neuen Spieler zum Spiel hinzu.
+     *
+     * @param player Der hinzuzufügende Spieler
+     */
+    public void addPlayer(Player player) {
+        players.add(player);
+    }
+
+    /**
+     * Gibt die Liste aller Spieler zurück.
+     *
+     * @return Liste aller Spieler
+     */
+    public List<Player> getPlayers() {
+        return players;
     }
 }

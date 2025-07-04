@@ -1,24 +1,34 @@
 package dev.dhbwloerrach.kamiio.kniffel;
 
-import dev.dhbwloerrach.kamiio.kniffel.game.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import dev.dhbwloerrach.kamiio.kniffel.game.Category;
 import dev.dhbwloerrach.kamiio.kniffel.utils.KniffelScorer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.util.Duration;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Hauptcontroller für das Kniffel-Spiel.
+ * Verwaltet die Benutzeroberfläche und interagiert mit der Spiellogik.
+ */
 public class HelloController {
     @FXML private Label welcomeText;
     @FXML private Button dice1Btn, dice2Btn, dice3Btn, dice4Btn, dice5Btn;
@@ -26,62 +36,266 @@ public class HelloController {
     @FXML private ComboBox<Category> categoryCombo;
     @FXML private Button submitCategoryButton;
     @FXML private Label playerLabel;
-    @FXML private Label scoreLabel;
-    @FXML private TableView<Player> scoreTable;
+
+    // Neue UI-Elemente
+    @FXML private Label player1NameLabel;
+    @FXML private Label player2NameLabel;
+    @FXML private Label player1ScoreLabel;
+    @FXML private Label player2ScoreLabel;
+    @FXML private VBox player1Box;
+    @FXML private VBox player2Box;
+    @FXML private HBox player2Box_input;
+    @FXML private Label computerActionLabel;
+    @FXML private TextArea gameHistoryArea;
+
+    // Erweiterte Tabelle
     @FXML private TableView<CategoryRow> categoryTable;
     @FXML private TableColumn<CategoryRow, String> categoryCol;
     @FXML private TableColumn<CategoryRow, String> statusCol;
     @FXML private TableColumn<CategoryRow, Integer> valueCol;
+    @FXML private TableColumn<CategoryRow, Integer> player1Col;
+    @FXML private TableColumn<CategoryRow, Integer> player2Col;
+
     @FXML private VBox nameInputVBox;
     @FXML private VBox mainVBox;
     @FXML private TextField player1NameField;
     @FXML private TextField player2NameField;
     @FXML private Button startGameButton;
+    @FXML private ToggleButton computerOpponentCheckBox;
 
-    private List<dev.dhbwloerrach.kamiio.kniffel.game.Player> players = new ArrayList<>();
+    private final List<dev.dhbwloerrach.kamiio.kniffel.game.Player> players = new ArrayList<>();
     private dev.dhbwloerrach.kamiio.kniffel.game.Game game;
-    @FXML private boolean[] diceToRoll = new boolean[5];
-    @FXML private boolean[] diceHeld = new boolean[5];
+    private final boolean[] diceHeld = new boolean[5];
     private boolean firstRollDone = false;
+    private final StringBuilder gameHistory = new StringBuilder();
 
-    // Unicode-Zeichen für Würfel 1-6
-    private static final String[] DICE_UNICODE = {"", "\u2680", "\u2681", "\u2682", "\u2683", "\u2684", "\u2685"};
+    // Unicode-Zeichen für Würfel 1-6 und leeren Würfel
+    private static final String[] DICE_UNICODE = {"⬜", "\u2680", "\u2681", "\u2682", "\u2683", "\u2684", "\u2685"};
     private static final int MAX_ROLLS = 3;
 
+    /**
+     * Initialisiert die Benutzeroberfläche beim Start.
+     */
     @FXML
     public void initialize() {
         // Zeige Namensdialog, verstecke Haupt-UI
         nameInputVBox.setVisible(true);
         mainVBox.setVisible(false);
-        // Initialisiere Kategorie-ComboBox und Tabelle direkt beim Start
+
+        // Computer-Aktions-Label anfangs ausblenden
+        if (computerActionLabel != null) {
+            computerActionLabel.setVisible(false);
+        }
+
+        // Event-Handler für den Computer-Gegner-Schalter
+        if (computerOpponentCheckBox != null && player2Box_input != null) {
+            computerOpponentCheckBox.setOnAction(e -> {
+                boolean isComputerOpponent = computerOpponentCheckBox.isSelected();
+                player2Box_input.setVisible(!isComputerOpponent);
+                player2Box_input.setManaged(!isComputerOpponent);
+
+                // Text des Buttons aktualisieren
+                if (isComputerOpponent) {
+                    computerOpponentCheckBox.setText("Ein");
+                    computerOpponentCheckBox.setStyle("-fx-font-size: 16px; -fx-background-radius: 20; -fx-min-width: 100; -fx-padding: 8 24; " +
+                                                    "-fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-insets: 0;");
+                    player2NameField.setText("Computer");
+                } else {
+                    computerOpponentCheckBox.setText("Aus");
+                    computerOpponentCheckBox.setStyle("-fx-font-size: 16px; -fx-background-radius: 20; -fx-min-width: 100; -fx-padding: 8 24; " +
+                                                    "-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-background-insets: 0;");
+                    player2NameField.setText("");
+                }
+            });
+        }
+
+        // Initialisiere Kategorie-ComboBox
         if (categoryCombo != null) {
             categoryCombo.getItems().setAll(dev.dhbwloerrach.kamiio.kniffel.game.Category.values());
+            // Deaktiviere ComboBox bis Würfel geworfen wurden
+            categoryCombo.setDisable(true);
+
+            // Listener für die Kategorie-Auswahl hinzufügen
+            categoryCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+                updateSubmitButtonState();
+            });
         }
+
+        // Initialisiere den Submit-Button als deaktiviert
+        if (submitCategoryButton != null) {
+            submitCategoryButton.setDisable(true);
+            // Setze inaktiven Stil
+            updateSubmitButtonState();
+        }
+
+        // Initialisiere Kategorie-Tabelle
         if (categoryTable != null) {
-            if (categoryCol != null) categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
-            if (statusCol != null) statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
-            if (valueCol != null) valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+            categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+            statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+            valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+
+            // Neue Spalten für Spieler-Punktestände
+            player1Col.setCellValueFactory(new PropertyValueFactory<>("player1Score"));
+            player2Col.setCellValueFactory(new PropertyValueFactory<>("player2Score"));
+
             updateCategoryTable();
+        }
+
+        // Setze leere Würfel am Anfang
+        if (dice1Btn != null) dice1Btn.setText(DICE_UNICODE[0]);
+        if (dice2Btn != null) dice2Btn.setText(DICE_UNICODE[0]);
+        if (dice3Btn != null) dice3Btn.setText(DICE_UNICODE[0]);
+        if (dice4Btn != null) dice4Btn.setText(DICE_UNICODE[0]);
+        if (dice5Btn != null) dice5Btn.setText(DICE_UNICODE[0]);
+
+        // Spielhistorie initialisieren
+        if (gameHistoryArea != null) {
+            gameHistoryArea.setText("Neues Spiel gestartet.\n");
         }
     }
 
+    /**
+     * Wird aufgerufen, wenn der Spielstart-Button geklickt wird.
+     * Initialisiert das Spiel mit den eingegebenen Spielernamen.
+     */
     @FXML
     protected void onStartGameClick() {
         String name1 = player1NameField.getText().trim();
         String name2 = player2NameField.getText().trim();
         if (name1.isEmpty()) name1 = "Spieler 1";
-        if (name2.isEmpty()) name2 = "Spieler 2";
+        if (name2.isEmpty()) name2 = "Computer";
+
         players.clear();
         players.add(new dev.dhbwloerrach.kamiio.kniffel.game.PersonPlayer(name1));
-        players.add(new dev.dhbwloerrach.kamiio.kniffel.game.PersonPlayer(name2));
+
+        boolean isComputerOpponent = computerOpponentCheckBox != null && computerOpponentCheckBox.isSelected();
+
+        // Prüfen, ob gegen den Computer gespielt werden soll
+        if (isComputerOpponent) {
+            players.add(new dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer(name2));
+        } else {
+            players.add(new dev.dhbwloerrach.kamiio.kniffel.game.PersonPlayer(name2));
+        }
+
+        // Spiel initialisieren
         game = new dev.dhbwloerrach.kamiio.kniffel.game.Game(players);
         game.startGame();
+
+        // UI umschalten
         nameInputVBox.setVisible(false);
-        mainVBox.setVisible(true);
+        mainVBox.setVisible(true);        // Spieler-Labels setzen
+        player1NameLabel.setText(name1);
+        player2NameLabel.setText(name2);
+
+        // Aktualisiere die Namen der Spieler in den Tabellenspalten
+        player1Col.setText(name1);
+        player2Col.setText(name2);
+
+        // Willkommenstext auf "Kniffel" ändern (falls nicht bereits geschehen)
+        if (welcomeText.getText().equals("Willkommen zu Kniffel!")) {
+            welcomeText.setText("Kniffel");
+        }
+
+        // Spielstand aktualisieren
+        updatePlayerScores();
+
+        // Spieler-Boxen hervorheben - aktiver Spieler
+        updateActivePlayerHighlight();
+
         // Setze Kategorie-ComboBox und Tabelle nach Spielstart erneut
-        categoryCombo.getItems().setAll(dev.dhbwloerrach.kamiio.kniffel.game.Category.values());
+        updateAvailableCategories();
         updateCategoryTable();
+
+        // Spielhistorie zurücksetzen
+        gameHistory.setLength(0);
+        addToGameHistory("Neues Spiel gestartet: " + name1 + " vs. " + name2);
+        if (isComputerOpponent) {
+            addToGameHistory(name1 + " spielt gegen den Computer (" + name2 + ")");
+        }
+
+        // Aktualisiere die gesamte UI
         updateUI();
+    }
+
+    /**
+     * Fügt einen Eintrag zur Spielhistorie hinzu.
+     *
+     * @param entry Der hinzuzufügende Eintrag
+     */
+    private void addToGameHistory(String entry) {
+        gameHistory.append(entry).append("\n");
+        if (gameHistoryArea != null) {
+            gameHistoryArea.setText(gameHistory.toString());
+            gameHistoryArea.positionCaret(gameHistoryArea.getText().length());
+        }
+    }
+
+    /**
+     * Aktualisiert die Anzeige der verfügbaren Kategorien in der ComboBox.
+     * Entfernt bereits verwendete Kategorien.
+     */
+    private void updateAvailableCategories() {
+        if (categoryCombo == null || game == null) return;
+
+        dev.dhbwloerrach.kamiio.kniffel.game.Player current = game.getCurrentPlayer();
+
+        // Filtere bereits verwendete Kategorien heraus
+        List<Category> availableCategories = java.util.Arrays.stream(Category.values())
+            .filter(cat -> !current.isCategoryUsed(cat))
+            .collect(Collectors.toList());
+
+        categoryCombo.getItems().setAll(availableCategories);
+        categoryCombo.setPromptText("Kategorie wählen");
+
+        // Aktiviere Combo-Box nur wenn mindestens einmal gewürfelt wurde
+        categoryCombo.setDisable(!firstRollDone);
+    }
+
+    /**
+     * Aktualisiert die Anzeige der Spielerstände.
+     */
+    private void updatePlayerScores() {
+        if (game == null || players.isEmpty()) return;
+
+        dev.dhbwloerrach.kamiio.kniffel.game.Player player1 = players.get(0);
+        player1ScoreLabel.setText(player1.getScore() + " Punkte");
+
+        if (players.size() > 1) {
+            dev.dhbwloerrach.kamiio.kniffel.game.Player player2 = players.get(1);
+            player2ScoreLabel.setText(player2.getScore() + " Punkte");
+        }
+    }
+
+    /**
+     * Hebt die Box des aktiven Spielers hervor.
+     */
+    private void updateActivePlayerHighlight() {
+        if (game == null || players.isEmpty()) return;
+
+        int currentPlayerIndex = players.indexOf(game.getCurrentPlayer());
+
+        // Setze Styles für beide Boxen zurück
+        player1Box.setStyle("-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 12; " +
+                           "-fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1.5; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(203, 213, 225, 0.5), 6, 0.0, 0, 2); " +
+                           "-fx-background-insets: 0; -fx-border-insets: 0;");
+        player2Box.setStyle("-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 12; " +
+                           "-fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1.5; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(203, 213, 225, 0.5), 6, 0.0, 0, 2); " +
+                           "-fx-background-insets: 0; -fx-border-insets: 0;");
+
+        // Hebe aktiven Spieler hervor
+        if (currentPlayerIndex == 0) {
+            player1Box.setStyle("-fx-background-color: #dcfce7; -fx-padding: 16; -fx-background-radius: 12; " +
+                               "-fx-border-color: #22c55e; -fx-border-radius: 12; -fx-border-width: 2; " +
+                               "-fx-effect: dropshadow(gaussian, rgba(34, 197, 94, 0.3), 8, 0.0, 0, 3); " +
+                               "-fx-background-insets: 0; -fx-border-insets: 0;");
+        } else if (currentPlayerIndex == 1) {
+            player2Box.setStyle("-fx-background-color: #dcfce7; -fx-padding: 16; -fx-background-radius: 12; " +
+                               "-fx-border-color: #22c55e; -fx-border-radius: 12; -fx-border-width: 2; " +
+                               "-fx-effect: dropshadow(gaussian, rgba(34, 197, 94, 0.3), 8, 0.0, 0, 3); " +
+                               "-fx-background-insets: 0; -fx-border-insets: 0;");
+        }
     }
 
     @FXML
@@ -96,13 +310,19 @@ public class HelloController {
     protected void onDice5Click() { if (firstRollDone) { diceHeld[4] = !diceHeld[4]; updateDiceButtonStyle(4); } }
 
     private void updateDiceButtonStyle(int index) {
-        String style = diceHeld[index] ? "-fx-background-color: #90ee90;" : "";
+        String baseStyle = "-fx-font-size: 40px; -fx-background-radius: 12px; -fx-border-color: #cbd5e1; -fx-border-radius: 12px; -fx-border-width: 1.5; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(203, 213, 225, 0.6), 6, 0.0, 0, 2); -fx-background-insets: 0; -fx-padding: 0;";
+
+        String style = diceHeld[index]
+            ? "-fx-background-color: #bbf7d0; -fx-border-color: #22c55e;"
+            : "-fx-background-color: white;";
+
         switch (index) {
-            case 0: dice1Btn.setStyle("-fx-font-size: 36px;" + style); break;
-            case 1: dice2Btn.setStyle("-fx-font-size: 36px;" + style); break;
-            case 2: dice3Btn.setStyle("-fx-font-size: 36px;" + style); break;
-            case 3: dice4Btn.setStyle("-fx-font-size: 36px;" + style); break;
-            case 4: dice5Btn.setStyle("-fx-font-size: 36px;" + style); break;
+            case 0: dice1Btn.setStyle(style + baseStyle); break;
+            case 1: dice2Btn.setStyle(style + baseStyle); break;
+            case 2: dice3Btn.setStyle(style + baseStyle); break;
+            case 3: dice4Btn.setStyle(style + baseStyle); break;
+            case 4: dice5Btn.setStyle(style + baseStyle); break;
         }
     }
 
@@ -110,6 +330,9 @@ public class HelloController {
     protected void onRollButtonClick() {
         firstRollDone = true;
         animateDiceRoll();
+        updateSubmitButtonState();
+        // Aktualisiere den Zustand des Würfel-Buttons
+        updateRollButtonState();
     }
 
     private void animateDiceRoll() {
@@ -129,6 +352,8 @@ public class HelloController {
             for (int i = 0; i < 5; i++) toRoll[i] = !diceHeld[i];
             game.rollDice(toRoll);
             updateUI();
+            // Aktualisiere den Status des Würfel-Buttons nach dem Würfeln
+            updateRollButtonState();
         });
         timeline.play();
     }
@@ -150,67 +375,269 @@ public class HelloController {
         if (cat != null && !current.isCategoryUsed(cat)) {
             int points = KniffelScorer.calculateScore(cat, game.getDiceList());
             current.addScore(cat, points);
+
+            // Zurücksetzen der UI-Elemente
+            categoryCombo.setValue(null);
+            firstRollDone = false;
+
             game.nextTurn();
             updateUI();
+
+            // Überprüfe, ob der nächste Spieler ein Computer ist
+            if (!game.isGameOver() && game.getCurrentPlayer() instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer) {
+                // Kurze Verzögerung, damit der Spieler den Wechsel sieht
+                javafx.application.Platform.runLater(() -> {
+                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                        handleComputerTurn();
+                    }));
+                    timeline.play();
+                });
+            }
         }
     }
 
+    /**
+     * Behandelt einen vollständigen Computer-Zug
+     */
+    private void handleComputerTurn() {
+        if (!game.isGameOver() && game.getCurrentPlayer() instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer) {
+            dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer computerPlayer =
+                (dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer) game.getCurrentPlayer();
+
+            // Animiere den ersten Würfelwurf
+            firstRollDone = true;
+            animateComputerDiceRoll();
+
+            // Nach einer kurzen Verzögerung, führe die Computer-Strategie aus
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                // Entscheide, welche Würfel behalten werden sollen
+                boolean[] toRoll = computerPlayer.decideDiceToRoll(game.getDiceList());
+
+                // Markiere die Würfel, die gehalten werden sollen
+                for (int i = 0; i < 5; i++) {
+                    diceHeld[i] = !toRoll[i];
+                    updateDiceButtonStyle(i);
+                }
+
+                // Zweiter Würfelwurf nach kurzer Verzögerung
+                Timeline timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e2 -> {
+                    animateComputerDiceRoll();
+
+                    // Nach dem zweiten Wurf, entscheide erneut
+                    Timeline timeline3 = new Timeline(new KeyFrame(Duration.seconds(1), e3 -> {
+                        boolean[] toRoll2 = computerPlayer.decideDiceToRoll(game.getDiceList());
+
+                        // Markiere die Würfel, die gehalten werden sollen
+                        for (int i = 0; i < 5; i++) {
+                            diceHeld[i] = !toRoll2[i];
+                            updateDiceButtonStyle(i);
+                        }
+
+                        // Dritter Würfelwurf nach kurzer Verzögerung
+                        Timeline timeline4 = new Timeline(new KeyFrame(Duration.seconds(1), e4 -> {
+                            if (game.getRollsLeft() > 0) {
+                                animateComputerDiceRoll();
+                            }
+
+                            // Nach dem dritten Wurf oder wenn keine Würfe mehr übrig sind, wähle Kategorie
+                            Timeline timeline5 = new Timeline(new KeyFrame(Duration.seconds(1), e5 -> {
+                                // Wähle beste Kategorie
+                                Category bestCategory = computerPlayer.chooseBestCategory(game.getDiceList());
+                                categoryCombo.setValue(bestCategory);
+
+                                // Wende Kategorie an und beende den Zug
+                                Timeline timeline6 = new Timeline(new KeyFrame(Duration.seconds(1), e6 -> {
+                                    int points = KniffelScorer.calculateScore(bestCategory, game.getDiceList());
+                                    computerPlayer.addScore(bestCategory, points);
+                                    game.nextTurn();
+                                    updateUI();
+
+                                    // Prüfe rekursiv, ob der nächste Spieler wieder ein Computer ist
+                                    if (!game.isGameOver() && game.getCurrentPlayer() instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer) {
+                                        handleComputerTurn();
+                                    }
+                                }));
+                                timeline6.play();
+                            }));
+                            timeline5.play();
+                        }));
+                        timeline4.play();
+                    }));
+                    timeline3.play();
+                }));
+                timeline2.play();
+            }));
+            timeline.play();
+        }
+    }
+
+    private void animateComputerDiceRoll() {
+        Timeline timeline = new Timeline();
+        for (int i = 0; i < 10; i++) {
+            timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50 * i), e -> {
+                for (int d = 0; d < 5; d++) {
+                    if (!diceHeld[d]) {
+                        int random = 1 + (int)(Math.random() * 6);
+                        setDiceButton(d, random);
+                    }
+                }
+            }));
+        }
+        timeline.setOnFinished(e -> {
+            boolean[] toRoll = new boolean[5];
+            for (int i = 0; i < 5; i++) toRoll[i] = !diceHeld[i];
+            game.rollDice(toRoll);
+            updateUI();
+            // Aktualisiere den Status des Würfel-Buttons nach dem Würfeln
+            updateRollButtonState();
+        });
+        timeline.play();
+    }
+
+    /**
+     * Aktualisiert die gesamte Benutzeroberfläche mit dem aktuellen Spielstand.
+     */
     private void updateUI() {
+        if (game == null) return;
+
         dev.dhbwloerrach.kamiio.kniffel.game.Player current = game.getCurrentPlayer();
+
+        // Würfel aktualisieren
         setDiceButton(0, game.getDiceList().get(0).getValue());
         setDiceButton(1, game.getDiceList().get(1).getValue());
         setDiceButton(2, game.getDiceList().get(2).getValue());
         setDiceButton(3, game.getDiceList().get(3).getValue());
         setDiceButton(4, game.getDiceList().get(4).getValue());
+
+        // Informationen aktualisieren
         rollsLeftLabel.setText("Würfe übrig: " + game.getRollsLeft());
         playerLabel.setText("Am Zug: " + current.getName());
-        scoreLabel.setText("Punkte: " + current.getScore());
+
+        // Spielerstände aktualisieren
+        updatePlayerScores();
+
+        // Aktiven Spieler hervorheben
+        updateActivePlayerHighlight();
+
         // Nach jedem Spielerwechsel alle Würfel auf nicht gehalten zurücksetzen und firstRollDone zurücksetzen
         for (int i = 0; i < 5; i++) {
             diceHeld[i] = false;
             updateDiceButtonStyle(i);
         }
-        if (game.getRollsLeft() == MAX_ROLLS) {
-            firstRollDone = false;
-            welcomeText.setText("Bitte zuerst würfeln!");
-        } else if (game.isGameOver()) {
-            welcomeText.setText("Spiel beendet! Gewinner: " + getWinnerName());
-        } else {
-            welcomeText.setText("Willkommen zu Kniffel!");
+
+        // Wenn noch nicht gewürfelt wurde, zeige leere Würfel
+        if (!firstRollDone) {
+            dice1Btn.setText(DICE_UNICODE[0]);
+            dice2Btn.setText(DICE_UNICODE[0]);
+            dice3Btn.setText(DICE_UNICODE[0]);
+            dice4Btn.setText(DICE_UNICODE[0]);
+            dice5Btn.setText(DICE_UNICODE[0]);
         }
+
+        // Spiel-Status überprüfen und UI entsprechend aktualisieren
+        if (game.isGameOver()) {
+            // Spiel zu Ende
+            welcomeText.setText("🏆 Spiel beendet! Gewinner: " + getWinnerName());
+
+            // Endstand zur Spielhistorie hinzufügen
+            StringBuilder sb = new StringBuilder("Endstand:\n");
+            for (dev.dhbwloerrach.kamiio.kniffel.game.Player p : game.getPlayers()) {
+                sb.append(p.getName()).append(": ").append(p.getScore()).append(" Punkte\n");
+            }
+            addToGameHistory("Spiel beendet. Gewinner: " + getWinnerName());
+            addToGameHistory(sb.toString());
+
+            // Kategorie-Auswahl deaktivieren
+            categoryCombo.setDisable(true);
+
+        } else if (game.getRollsLeft() == MAX_ROLLS) {
+            // Neuer Zug, noch nicht gewürfelt
+            firstRollDone = false;
+            welcomeText.setText(current.getName() + " ist am Zug - Bitte würfeln");        // Kategorien aktualisieren
+        updateAvailableCategories();
+
+        // Button-Status aktualisieren
+        updateSubmitButtonState();
+        updateRollButtonState();
+
+        // Starte Computer-Zug, wenn ein Computer am Zug ist
+            if (current instanceof dev.dhbwloerrach.kamiio.kniffel.game.ComputerPlayer) {
+                // Computer-Aktions-Label anzeigen
+                computerActionLabel.setVisible(true);
+                computerActionLabel.setText("Computer überlegt...");
+
+                welcomeText.setText("Computer ist am Zug - Wurf " + (MAX_ROLLS - game.getRollsLeft() + 1) + " von " + MAX_ROLLS);
+
+                // Verzögerung, damit der Spieler sehen kann, dass der Computer am Zug ist
+                javafx.application.Platform.runLater(() -> {
+                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                        handleComputerTurn();
+                    }));
+                    timeline.play();
+                });
+            } else {
+                // Computer-Aktions-Label ausblenden, wenn menschlicher Spieler am Zug ist
+                computerActionLabel.setVisible(false);
+            }
+        } else {
+            // Mitten im Zug
+            int remainingRolls = game.getRollsLeft();
+            welcomeText.setText(current.getName() + " - Noch " + remainingRolls + " Würfe übrig");
+            updateAvailableCategories();
+        }
+
+        // Kategorie-Tabelle aktualisieren
         updateCategoryTable();
     }
 
+    /**
+     * Aktualisiert die Kategorie-Tabelle mit den aktuellen Spielinformationen.
+     */
     private void updateCategoryTable() {
         if (categoryTable == null) return;
+
+        ObservableList<CategoryRow> data = FXCollections.observableArrayList();
+
         if (game == null) {
             // Zeige alle Kategorien als offen und leer, solange kein Spiel läuft
-            ObservableList<CategoryRow> data = FXCollections.observableArrayList();
             for (dev.dhbwloerrach.kamiio.kniffel.game.Category cat : dev.dhbwloerrach.kamiio.kniffel.game.Category.values()) {
-                data.add(new CategoryRow(cat.name(), "Offen", null));
+                data.add(new CategoryRow(cat.name(), "Offen", null, null, null));
             }
             categoryTable.setItems(data);
             return;
         }
+
         dev.dhbwloerrach.kamiio.kniffel.game.Player current = game.getCurrentPlayer();
-        ObservableList<CategoryRow> data = FXCollections.observableArrayList();
         List<Dice> dice = game.getDiceList();
         boolean noRoll = !firstRollDone;
+
+        // Hole beide Spieler für die Anzeige der Punkte
+        dev.dhbwloerrach.kamiio.kniffel.game.Player player1 = players.get(0);
+        dev.dhbwloerrach.kamiio.kniffel.game.Player player2 = players.size() > 1 ? players.get(1) : null;
+
         for (dev.dhbwloerrach.kamiio.kniffel.game.Category cat : dev.dhbwloerrach.kamiio.kniffel.game.Category.values()) {
             boolean used = current.isCategoryUsed(cat);
-            int value = current.getCategoryScore(cat);
             String status = used ? "Eingelöst" : "Offen";
-            Integer displayValue;
+
+            // Aktueller potentieller Wert für die Kategorie
+            Integer currentValue;
             if (used) {
-                displayValue = value;
+                currentValue = current.getCategoryScore(cat);
             } else if (noRoll) {
-                displayValue = null;
+                currentValue = null;
             } else {
-                displayValue = dev.dhbwloerrach.kamiio.kniffel.utils.KniffelScorer.calculateScore(cat, dice);
+                currentValue = dev.dhbwloerrach.kamiio.kniffel.utils.KniffelScorer.calculateScore(cat, dice);
             }
-            data.add(new CategoryRow(cat.name(), status, displayValue));
+
+            // Punkte für beide Spieler
+            Integer player1Score = player1.isCategoryUsed(cat) ? player1.getCategoryScore(cat) : null;
+            Integer player2Score = player2 != null && player2.isCategoryUsed(cat) ? player2.getCategoryScore(cat) : null;
+
+            data.add(new CategoryRow(cat.name(), status, currentValue, player1Score, player2Score));
         }
+
         categoryTable.setItems(data);
+
         // Markiere bereits eingelöste Kategorien in der Tabelle
         categoryTable.setRowFactory(tv -> new TableRow<CategoryRow>() {
             @Override
@@ -225,23 +652,101 @@ public class HelloController {
                 }
             }
         });
+    }    /**
+     * Aktualisiert den Zustand des Wählen-Buttons basierend auf dem Spielstatus.
+     * Der Button ist nur aktiviert, wenn bereits gewürfelt wurde und eine Kategorie ausgewählt ist.
+     */
+    private void updateSubmitButtonState() {
+        if (submitCategoryButton == null) return;
+
+        boolean shouldEnable = firstRollDone && categoryCombo.getValue() != null;
+        submitCategoryButton.setDisable(!shouldEnable);
+
+        // Style anpassen je nach Status
+        if (shouldEnable) {
+            // Aktiver Zustand (grün)
+            submitCategoryButton.setStyle("-fx-font-size: 16px; -fx-background-color: #22c55e; -fx-text-fill: white; " +
+                                         "-fx-background-radius: 12px; -fx-padding: 10 24; -fx-font-weight: bold; " +
+                                         "-fx-effect: dropshadow(gaussian, rgba(34, 197, 94, 0.25), 6, 0.0, 0, 2); " +
+                                         "-fx-background-insets: 0;");
+        } else {
+            // Deaktivierter Zustand (grau)
+            submitCategoryButton.setStyle("-fx-font-size: 16px; -fx-background-color: #cbd5e1; -fx-text-fill: #94a3b8; " +
+                                         "-fx-background-radius: 12px; -fx-padding: 10 24; -fx-font-weight: bold; " +
+                                         "-fx-effect: none; -fx-background-insets: 0;");
+        }
+    }
+
+    /**
+     * Aktualisiert den Zustand des Würfel-Buttons basierend auf der Anzahl der verbleibenden Würfe.
+     */
+    private void updateRollButtonState() {
+        if (game == null) return;
+
+        Button rollButton = null;
+        for (javafx.scene.Node node : mainVBox.lookupAll("Button")) {
+            if (node instanceof Button && ((Button) node).getText() != null && ((Button) node).getText().equals("Würfeln")) {
+                rollButton = (Button) node;
+                break;
+            }
+        }
+
+        if (rollButton != null) {
+            boolean canRoll = game.getRollsLeft() > 0;
+            rollButton.setDisable(!canRoll);
+
+            if (canRoll) {
+                // Aktiver Zustand (blau)
+                rollButton.setStyle("-fx-font-size: 18px; -fx-background-color: #38bdf8; -fx-text-fill: white; " +
+                                  "-fx-background-radius: 12px; -fx-padding: 10 28; -fx-font-weight: bold; " +
+                                  "-fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.25), 6, 0.0, 0, 2); " +
+                                  "-fx-background-insets: 0;");
+            } else {
+                // Deaktivierter Zustand (grau)
+                rollButton.setStyle("-fx-font-size: 18px; -fx-background-color: #cbd5e1; -fx-text-fill: #94a3b8; " +
+                                  "-fx-background-radius: 12px; -fx-padding: 10 28; -fx-font-weight: bold; " +
+                                  "-fx-effect: none; -fx-background-insets: 0;");
+            }
+        }
     }
 
     private String getWinnerName() {
-        return players.stream().max((a, b) -> Integer.compare(a.getScore(), b.getScore())).get().getName();
+        dev.dhbwloerrach.kamiio.kniffel.game.Player winner = game.getWinner();
+        return winner != null ? winner.getName() : "Kein Gewinner";
     }
 
+    /**
+     * Datenklasse für eine Zeile in der Kategorie-Tabelle.
+     * Enthält Informationen über eine Kategorie und deren Werte für beide Spieler.
+     */
     public static class CategoryRow {
         private final String category;
         private final String status;
         private final Integer value;
-        public CategoryRow(String category, String status, Integer value) {
+        private final Integer player1Score;
+        private final Integer player2Score;
+
+        /**
+         * Erstellt eine neue CategoryRow mit den angegebenen Werten.
+         *
+         * @param category Die Kategorie
+         * @param status Der Status (z.B. "Offen", "Eingelöst")
+         * @param value Der aktuelle berechnete Wert
+         * @param player1Score Der Punktestand von Spieler 1 für diese Kategorie
+         * @param player2Score Der Punktestand von Spieler 2 für diese Kategorie
+         */
+        public CategoryRow(String category, String status, Integer value, Integer player1Score, Integer player2Score) {
             this.category = category;
             this.status = status;
             this.value = value;
+            this.player1Score = player1Score;
+            this.player2Score = player2Score;
         }
+
         public String getCategory() { return category; }
         public String getStatus() { return status; }
         public Integer getValue() { return value; }
+        public Integer getPlayer1Score() { return player1Score; }
+        public Integer getPlayer2Score() { return player2Score; }
     }
 }
