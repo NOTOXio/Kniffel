@@ -36,8 +36,8 @@ public class GameOverPanel {
 
     private final StackPane overlay;
     private final VBox panel;
-    private final GameOverPanelHandler handler;
     private final Pane rootPane;
+    // Handler wird direkt in den entsprechenden Methoden verwendet
 
     /**
      * Erstellt ein neues GameOverPanel.
@@ -50,7 +50,7 @@ public class GameOverPanel {
      */
     public GameOverPanel(Pane rootPane, String winnerName, boolean isComputer, int score, GameOverPanelHandler handler) {
         this.rootPane = rootPane;
-        this.handler = handler;
+        final GameOverPanelHandler finalHandler = handler; // Als lokale Konstante speichern
 
         // Halbdurchsichtiger Hintergrund
         overlay = new StackPane();
@@ -98,8 +98,8 @@ public class GameOverPanel {
                              "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);");
         rematchButton.setOnAction(e -> {
             hide();
-            if (handler != null) {
-                handler.onRematchRequested();
+            if (finalHandler != null) {
+                finalHandler.onRematchRequested();
             }
         });
 
@@ -110,8 +110,8 @@ public class GameOverPanel {
                           "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);");
         quitButton.setOnAction(e -> {
             hide();
-            if (handler != null) {
-                handler.onReturnToMainMenuRequested();
+            if (finalHandler != null) {
+                finalHandler.onReturnToMainMenuRequested();
             }
         });
 

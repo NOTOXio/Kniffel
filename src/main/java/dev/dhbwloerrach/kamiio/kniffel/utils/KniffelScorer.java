@@ -32,7 +32,6 @@ public final class KniffelScorer {
      * @throws IllegalArgumentException wenn die Würfelliste null ist oder nicht genau 5 Würfel enthält
      */
     public static int calculateScore(Category category, List<Dice> diceList) {
-        // Fehlerprüfung
         if (diceList == null) {
             throw new IllegalArgumentException("Würfelliste darf nicht null sein!");
         }
@@ -41,11 +40,9 @@ public final class KniffelScorer {
             throw new IllegalArgumentException("Würfelliste muss genau 5 Würfel enthalten!");
         }
 
-        // Zähle die Häufigkeiten der Würfelwerte
         int[] counts = countDiceValues(diceList);
         int sum = calculateSum(diceList);
 
-        // Berechne Punktzahl basierend auf der Kategorie
         switch (category) {
             case ONES:   return calculateNumberScore(counts, 1);
             case TWOS:   return calculateNumberScore(counts, 2);
@@ -74,7 +71,7 @@ public final class KniffelScorer {
      * @return Ein Array mit der Häufigkeit der Würfelwerte (Index = Würfelwert)
      */
     private static int[] countDiceValues(List<Dice> diceList) {
-        int[] counts = new int[7]; // Index 0 wird nicht verwendet
+        int[] counts = new int[7];
         for (Dice dice : diceList) {
             counts[dice.getValue()]++;
         }
@@ -143,7 +140,7 @@ public final class KniffelScorer {
      * @return true, wenn die Würfel eine kleine Straße bilden, sonst false
      */
     private static boolean isSmallStraight(int[] counts) {
-        // Prüfe die drei möglichen kleinen Straßen: 1-2-3-4, 2-3-4-5, 3-4-5-6
+
         return (counts[1] > 0 && counts[2] > 0 && counts[3] > 0 && counts[4] > 0) ||
                (counts[2] > 0 && counts[3] > 0 && counts[4] > 0 && counts[5] > 0) ||
                (counts[3] > 0 && counts[4] > 0 && counts[5] > 0 && counts[6] > 0);
@@ -156,7 +153,7 @@ public final class KniffelScorer {
      * @return true, wenn die Würfel eine große Straße bilden, sonst false
      */
     private static boolean isLargeStraight(int[] counts) {
-        // Prüfe die zwei möglichen großen Straßen: 1-2-3-4-5 oder 2-3-4-5-6
+
         return (counts[1] == 1 && counts[2] == 1 && counts[3] == 1 && counts[4] == 1 && counts[5] == 1) ||
                (counts[2] == 1 && counts[3] == 1 && counts[4] == 1 && counts[5] == 1 && counts[6] == 1);
     }

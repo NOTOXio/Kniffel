@@ -21,8 +21,7 @@ public class ComputerPlayer extends Player {
     private final Random random;
 
     // Konstanten für die KI-Strategie
-    // Konstanten für die Punktzahlen
-    private static final int KNIFFEL_SCORE = 50;           // Punktzahl für ein Kniffel
+    private static final int KNIFFEL_SCORE = 50;
 
     // Verschiedene Schwierigkeitsstufen für die KI
     public enum Difficulty {
@@ -60,9 +59,7 @@ public class ComputerPlayer extends Player {
      */
     @Override
     public void takeTurn() {
-        // Diese Methode wird aufgerufen, wenn der Computer am Zug ist
-        // Die eigentliche Implementierung würde mit der Game-Klasse interagieren
-        // und ist in der executeComputerTurn-Methode der Game-Klasse realisiert
+        // Implementierung erfolgt in der executeComputerTurn-Methode der Game-Klasse
     }
 
     /**
@@ -102,39 +99,30 @@ public class ComputerPlayer extends Player {
             }
         }
 
-        // Versuche die beste Figur zu erkennen und entsprechend zu handeln
         if (hasKniffelPotential(values)) {
-            // Wenn wir Potenzial für ein Kniffel haben, behalte alle Würfel mit dem häufigsten Wert
             for (int i = 0; i < diceList.size(); i++) {
                 toRoll[i] = diceList.get(i).getValue() != maxValue;
             }
         }
         else if (hasStraightPotential(values)) {
-            // Wenn wir Potenzial für eine Straße haben, behalte aufeinanderfolgende Zahlen
             decideForStraight(diceList, toRoll, values);
         }
         else {
-            // Standardstrategie für andere Fälle
             for (int i = 0; i < diceList.size(); i++) {
                 int value = diceList.get(i).getValue();
 
-                // Wenn wir bereits 3 oder mehr gleiche Zahlen haben, behalte diese
                 if (maxCount >= 3 && value == maxValue) {
-                    toRoll[i] = false; // Nicht neu würfeln
+                    toRoll[i] = false;
                 }
-                // Wenn wir 2 gleiche Zahlen haben und eine gute Chance auf 3 gleiche, behalte diese
                 else if (maxCount == 2 && value == maxValue) {
                     toRoll[i] = false;
                 }
-                // Für eine potenzielle Straße behalte die Zahlen in der Mitte (3,4)
                 else if ((value == 3 || value == 4) && (values[3] > 0 && values[4] > 0)) {
                     toRoll[i] = false;
                 }
-                // Bei hohen Zahlen (5,6) bei Schwierigkeit HARD eher behalten
                 else if (difficulty == Difficulty.HARD && (value == 5 || value == 6)) {
-                    toRoll[i] = random.nextDouble() > 0.7; // 30% Chance zu behalten
+                    toRoll[i] = random.nextDouble() > 0.7;
                 }
-                // Ansonsten würfle neu
                 else {
                     toRoll[i] = true;
                 }
@@ -165,7 +153,7 @@ public class ComputerPlayer extends Player {
      * @return Ein Array mit den Häufigkeiten der Würfelwerte (Index = Würfelwert)
      */
     private int[] countDiceValues(List<Dice> diceList) {
-        int[] values = new int[7]; // Index 0 wird nicht verwendet
+        int[] values = new int[7];
         for (Dice dice : diceList) {
             values[dice.getValue()]++;
         }
@@ -180,7 +168,7 @@ public class ComputerPlayer extends Player {
      */
     private boolean hasKniffelPotential(int[] values) {
         for (int i = 1; i <= 6; i++) {
-            if (values[i] >= 3) { // Wenn wir bereits 3 oder mehr gleiche Zahlen haben
+            if (values[i] >= 3) {
                 return true;
             }
         }
@@ -203,7 +191,7 @@ public class ComputerPlayer extends Player {
                 sequenceCount = 0;
             }
 
-            if (sequenceCount >= 3) { // Wenn wir bereits 3 oder mehr aufeinanderfolgende Zahlen haben
+            if (sequenceCount >= 3) {
                 return true;
             }
         }
@@ -214,7 +202,7 @@ public class ComputerPlayer extends Player {
             if (values[i] > 0) totalNumbers++;
         }
 
-        return totalNumbers >= 3; // Wenn wir mindestens 3 verschiedene Zahlen haben
+        return totalNumbers >= 3;
     }
 
     /**
@@ -325,7 +313,6 @@ public class ComputerPlayer extends Player {
 
                 // Wenn wir nah am Bonus sind, priorisiere oberen Bereich
                 if (missingForBonus < 20) {
-                    // Finde die beste obere Kategorie
                     // Finde die beste obere Kategorie
                     return potentialScores.entrySet().stream()
                         .filter(entry -> isUpperSectionCategory(entry.getKey()))

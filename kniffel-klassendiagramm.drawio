@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="7.0" version="24.7.17">
+  <diagram name="Kniffel Class Diagram" id="9f46799a-70d6-7492-0946-bef42562c5a5">
+    <mxGraphModel dx="2074" dy="1129" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Kniffel - UML Klassendiagramm" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="369" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- App Class -->
+        <mxCell id="app-class" value="&lt;&lt;class&gt;&gt;&#xa;App" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="50" y="80" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="app-methods" value="+ main(String[]): void&#xa;+ start(Stage): void&#xa;- createScene(): Scene" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="app-class" vertex="1">
+          <mxGeometry y="40" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Game Interface -->
+        <mxCell id="game-interface" value="&lt;&lt;interface&gt;&gt;&#xa;GameInterface" style="swimlane;fontStyle=3;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="320" y="80" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="game-interface-methods" value="+ startGame(): void&#xa;+ nextTurn(): void&#xa;+ isGameOver(): boolean&#xa;+ getCurrentPlayer(): Player" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=3;" parent="game-interface" vertex="1">
+          <mxGeometry y="40" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Game Class (Singleton) -->
+        <mxCell id="game-class" value="&lt;&lt;class&gt;&gt;&#xa;Game&#xa;&lt;&lt;Singleton&gt;&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="290" y="250" width="260" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="game-attributes" value="- instance: Game&#xa;- players: List&lt;Player&gt;&#xa;- currentPlayerIndex: int&#xa;- gameOver: boolean&#xa;- diceList: List&lt;Dice&gt;&#xa;- rollsLeft: int&#xa;+ DICE_COUNT: int = 5&#xa;+ MAX_ROLLS: int = 3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="game-class" vertex="1">
+          <mxGeometry y="50" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="game-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="game-class" vertex="1">
+          <mxGeometry y="170" width="260" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="game-methods" value="+ getInstance(): Game&#xa;+ startGame(): void&#xa;+ nextTurn(): void&#xa;+ rollDice(boolean[]): void&#xa;+ isGameOver(): boolean&#xa;+ getCurrentPlayer(): Player&#xa;+ getDiceList(): List&lt;Dice&gt;&#xa;+ getRollsLeft(): int&#xa;+ resetDice(): void&#xa;+ addPlayer(Player): void&#xa;- executeComputerTurn(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="game-class" vertex="1">
+          <mxGeometry y="178" width="260" height="102" as="geometry" />
+        </mxCell>
+
+        <!-- Player Abstract Class -->
+        <mxCell id="player-class" value="&lt;&lt;abstract&gt;&gt;&#xa;Player" style="swimlane;fontStyle=3;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="630" y="80" width="280" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="player-attributes" value="- name: String&#xa;- score: int&#xa;- categoryScores: Map&lt;Category, Integer&gt;&#xa;- usedCategories: Map&lt;Category, Boolean&gt;&#xa;- isUpperSectionBonusAdded: boolean&#xa;+ UPPER_SECTION_BONUS_THRESHOLD: int = 63&#xa;+ UPPER_SECTION_BONUS: int = 35" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="player-class" vertex="1">
+          <mxGeometry y="40" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="player-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="player-class" vertex="1">
+          <mxGeometry y="150" width="280" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="player-methods" value="+ Player(String name)&#xa;+ getName(): String&#xa;+ getScore(): int&#xa;+ addScore(Category, int): void&#xa;+ getCategoryScore(Category): int&#xa;+ getCategoryScores(): Map&lt;Category, Integer&gt;&#xa;+ getUsedCategories(): Map&lt;Category, Boolean&gt;&#xa;+ hasUsedCategory(Category): boolean&#xa;+ allCategoriesUsed(): boolean&#xa;+ getUpperSectionScore(): int&#xa;+ hasUpperSectionBonus(): boolean&#xa;+ reset(): void&#xa;+ takeTurn(): void {abstract}&#xa;+ toString(): String&#xa;- checkAndAddUpperSectionBonus(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="player-class" vertex="1">
+          <mxGeometry y="158" width="280" height="162" as="geometry" />
+        </mxCell>
+
+        <!-- PersonPlayer Class -->
+        <mxCell id="person-player-class" value="&lt;&lt;class&gt;&gt;&#xa;PersonPlayer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="520" y="450" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="person-player-methods" value="+ PersonPlayer(String name)&#xa;+ takeTurn(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="person-player-class" vertex="1">
+          <mxGeometry y="40" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ComputerPlayer Class -->
+        <mxCell id="computer-player-class" value="&lt;&lt;class&gt;&gt;&#xa;ComputerPlayer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="750" y="450" width="250" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="computer-player-methods" value="+ ComputerPlayer(String name)&#xa;+ takeTurn(): void&#xa;+ decideDiceToRoll(List&lt;Dice&gt;): boolean[]&#xa;+ chooseBestCategory(List&lt;Dice&gt;): Category&#xa;- evaluateCategory(Category, List&lt;Dice&gt;): int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="computer-player-class" vertex="1">
+          <mxGeometry y="40" width="250" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Category Enum -->
+        <mxCell id="category-enum" value="&lt;&lt;enum&gt;&gt;&#xa;Category" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="950" y="80" width="180" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="category-values" value="ONES&#xa;TWOS&#xa;THREES&#xa;FOURS&#xa;FIVES&#xa;SIXES&#xa;THREE_OF_A_KIND&#xa;FOUR_OF_A_KIND&#xa;FULL_HOUSE&#xa;SMALL_STRAIGHT&#xa;LARGE_STRAIGHT&#xa;KNIFFEL&#xa;CHANCE" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="category-enum" vertex="1">
+          <mxGeometry y="40" width="180" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="category-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="category-enum" vertex="1">
+          <mxGeometry y="220" width="180" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="category-methods" value="+ toString(): String&#xa;+ getDisplayName(): String&#xa;+ getDescription(): String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="category-enum" vertex="1">
+          <mxGeometry y="228" width="180" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Dice Class -->
+        <mxCell id="dice-class" value="&lt;&lt;class&gt;&gt;&#xa;Dice" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="50" y="250" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="dice-attributes" value="+ MIN_VALUE: int = 1&#xa;+ MAX_VALUE: int = 6&#xa;- value: int&#xa;- held: boolean&#xa;- random: Random" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="dice-class" vertex="1">
+          <mxGeometry y="40" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dice-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="dice-class" vertex="1">
+          <mxGeometry y="120" width="200" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="dice-methods" value="+ Dice()&#xa;+ roll(): void&#xa;+ getValue(): int&#xa;+ setValue(int): void&#xa;+ isHeld(): boolean&#xa;+ setHeld(boolean): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="dice-class" vertex="1">
+          <mxGeometry y="128" width="200" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- KniffelScorer Utility -->
+        <mxCell id="scorer-class" value="&lt;&lt;utility&gt;&gt;&#xa;KniffelScorer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="50" y="470" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="scorer-methods" value="+ calculateScore(Category, List&lt;Dice&gt;): int&#xa;+ calculateAllPossibleScores(List&lt;Dice&gt;): Map&lt;Category, Integer&gt;&#xa;+ hasPair(List&lt;Dice&gt;): boolean&#xa;+ hasThreeOfAKind(List&lt;Dice&gt;): boolean&#xa;+ hasFourOfAKind(List&lt;Dice&gt;): boolean&#xa;+ hasFullHouse(List&lt;Dice&gt;): boolean&#xa;+ hasSmallStraight(List&lt;Dice&gt;): boolean&#xa;+ hasLargeStraight(List&lt;Dice&gt;): boolean&#xa;+ hasKniffel(List&lt;Dice&gt;): boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="scorer-class" vertex="1">
+          <mxGeometry y="40" width="280" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- GameController -->
+        <mxCell id="controller-class" value="&lt;&lt;class&gt;&gt;&#xa;GameController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="370" y="580" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-attributes" value="@FXML diceButtons: Button[]&#xa;@FXML categoryCombo: ComboBox&lt;Category&gt;&#xa;@FXML playerLabels: Label[]&#xa;@FXML scoreLabels: Label[]&#xa;@FXML categoryTable: TableView&lt;CategoryRow&gt;&#xa;@FXML gameHistoryArea: TextArea&#xa;- game: Game&#xa;- gameSetupController: GameSetupController" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="controller-class" vertex="1">
+          <mxGeometry y="40" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="controller-class" vertex="1">
+          <mxGeometry y="160" width="300" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-methods" value="+ initialize(): void&#xa;+ onRollDiceClick(): void&#xa;+ onSubmitCategoryClick(): void&#xa;+ onStartGameClick(): void&#xa;- updateUI(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="controller-class" vertex="1">
+          <mxGeometry y="168" width="300" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- UI Classes -->
+        <mxCell id="dicebutton-class" value="&lt;&lt;class&gt;&gt;&#xa;DiceButton" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="580" width="180" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dicebutton-attributes" value="+ DICE_UNICODE: String[]&#xa;- isHeld: boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="dicebutton-class" vertex="1">
+          <mxGeometry y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="dicebutton-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="dicebutton-class" vertex="1">
+          <mxGeometry y="80" width="180" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="dicebutton-methods" value="+ setHeld(boolean): void&#xa;+ toggleHeld(): void&#xa;- updateStyle(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="dicebutton-class" vertex="1">
+          <mxGeometry y="88" width="180" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- CategoryRow Model -->
+        <mxCell id="categoryrow-class" value="&lt;&lt;class&gt;&gt;&#xa;CategoryRow" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="950" y="580" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="categoryrow-attributes" value="- category: String&#xa;- status: String&#xa;- value: Integer&#xa;- player1Score: Integer&#xa;- player2Score: Integer" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="categoryrow-class" vertex="1">
+          <mxGeometry y="40" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="categoryrow-separator" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="categoryrow-class" vertex="1">
+          <mxGeometry y="120" width="180" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="categoryrow-methods" value="+ Getters/Setters" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="categoryrow-class" vertex="1">
+          <mxGeometry y="128" width="180" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+
+        <!-- Game implements GameInterface -->
+        <mxCell id="game-implements-interface" value="" style="endArrow=block;dashed=1;endFill=0;endSize=12;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="game-class" target="game-interface" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="420" y="250" as="sourcePoint" />
+            <mxPoint x="580" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- PersonPlayer extends Player -->
+        <mxCell id="person-extends-player" value="" style="endArrow=block;endFill=0;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="person-player-class" target="player-class" edge="1">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="620" y="450" as="sourcePoint" />
+            <mxPoint x="780" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ComputerPlayer extends Player -->
+        <mxCell id="computer-extends-player" value="" style="endArrow=block;endFill=0;html=1;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=top;rounded=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="computer-player-class" target="player-class" edge="1">
+          <mxGeometry x="-1" relative="1" as="geometry">
+            <mxPoint x="875" y="450" as="sourcePoint" />
+            <mxPoint x="840" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Game aggregates Players -->
+        <mxCell id="game-aggregates-player" value="1..*" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="game-class" target="player-class" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="550" y="320" as="sourcePoint" />
+            <mxPoint x="630" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="game-player-label" value="players" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="560" y="150" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Game aggregates Dice -->
+        <mxCell id="game-aggregates-dice" value="5" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="game-class" target="dice-class" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="290" y="390" as="sourcePoint" />
+            <mxPoint x="250" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="game-dice-label" value="diceList" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="260" y="360" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Player uses Category -->
+        <mxCell id="player-uses-category" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;dashed=1;" parent="1" source="player-class" target="category-enum" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="910" y="240" as="sourcePoint" />
+            <mxPoint x="950" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="player-category-label" value="uses" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="915" y="210" width="40" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- GameController controls Game -->
+        <mxCell id="controller-controls-game" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="controller-class" target="game-class" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="520" y="580" as="sourcePoint" />
+            <mxPoint x="420" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="controller-game-label" value="controls" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="430" y="540" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- KniffelScorer uses Dice and Category -->
+        <mxCell id="scorer-uses-dice" value="" style="endArrow=open;endFill=1;endSize=12;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;dashed=1;" parent="1" source="scorer-class" target="dice-class" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="190" y="470" as="sourcePoint" />
+            <mxPoint x="150" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="Legende:&#xa;━━━━ Vererbung&#xa;┅┅┅┅ Implementierung&#xa;───▶ Aggregation/Assoziation&#xa;┄┄┄▶ Verwendung" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=top;whiteSpace=wrap;rounded=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="50" y="630" width="200" height="80" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

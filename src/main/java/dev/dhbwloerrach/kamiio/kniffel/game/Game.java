@@ -1,6 +1,7 @@
 package dev.dhbwloerrach.kamiio.kniffel.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import dev.dhbwloerrach.kamiio.kniffel.Dice;
@@ -21,7 +22,7 @@ public class Game implements GameInterface {
     private List<Player> players;
     private int currentPlayerIndex;
     private boolean gameOver;
-    private List<Dice> diceList;
+    private final List<Dice> diceList;
     private int rollsLeft;
     public static final int MAX_ROLLS = 3;
     public static final int DICE_COUNT = 5;
@@ -54,7 +55,6 @@ public class Game implements GameInterface {
         if (instance == null) {
             instance = new Game(players);
         } else {
-            // Aktualisieren der Spieler, wenn eine neue Liste übergeben wird
             instance.players = players;
             instance.reset();
         }
@@ -81,10 +81,8 @@ public class Game implements GameInterface {
      */
     @Override
     public void startGame() {
-        // Startlogik, z.B. Spielerreihenfolge festlegen
         currentPlayerIndex = 0;
         gameOver = false;
-        // Verwende foreach-Schleife für bessere Lesbarkeit
         for (Player player : players) {
             player.reset();
         }
@@ -125,7 +123,7 @@ public class Game implements GameInterface {
 
         ComputerPlayer computerPlayer = (ComputerPlayer) getCurrentPlayer();
 
-        // 1. Erster Würfelwurf - verwende do-while Schleife als Beispiel
+        // 1. Erster Würfelwurf
         boolean[] allDice = new boolean[DICE_COUNT];
         int i = 0;
         do {
@@ -136,7 +134,6 @@ public class Game implements GameInterface {
         rollDice(allDice);
 
         // 2. Entscheide, welche Würfel behalten werden sollen (für bis zu 2 weitere Würfe)
-        // Verwende while-Schleife für die verbleibenden Würfe
         int remainingRolls = 2;
         while (remainingRolls > 0 && rollsLeft > 0) {
             boolean[] toRoll = computerPlayer.decideDiceToRoll(diceList);
@@ -149,7 +146,7 @@ public class Game implements GameInterface {
         int points = KniffelScorer.calculateScore(bestCategory, diceList);
         computerPlayer.addScore(bestCategory, points);
 
-        // 4. Zug zum nächsten Spieler wechseln ohne rekursiven Aufruf
+        // 4. Zug zum nächsten Spieler wechseln
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         resetDice();
 
@@ -219,7 +216,6 @@ public class Game implements GameInterface {
      * @throws IllegalStateException wenn keine Würfe mehr übrig sind
      */
     public void rollDice(boolean[] toRoll) {
-        // Verbesserte Fehlerbehandlung
         if (toRoll.length != DICE_COUNT) {
             throw new IllegalArgumentException("Array muss genau " + DICE_COUNT + " Elemente haben!");
         }
@@ -228,7 +224,6 @@ public class Game implements GameInterface {
             throw new IllegalStateException("Keine Würfe mehr übrig!");
         }
 
-        // Würfel werfen
         for (int i = 0; i < DICE_COUNT; i++) {
             if (toRoll[i]) {
                 diceList.get(i).roll();
@@ -267,6 +262,6 @@ public class Game implements GameInterface {
      * @return Eine nicht veränderbare Kopie der Spielerliste
      */
     public List<Player> getPlayers() {
-        return List.copyOf(players);  // Unveränderbare Kopie zurückgeben
+        return Collections.unmodifiableList(players);
     }
 }

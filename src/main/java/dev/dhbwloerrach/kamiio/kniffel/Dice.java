@@ -9,7 +9,6 @@ import dev.dhbwloerrach.kamiio.kniffel.utils.InputException;
  * Ein Würfel hat einen Wert (1-6) und kann gehalten oder neu gewürfelt werden.
  */
 public class Dice {
-    // Konstanten für Würfelwerte
     public static final int MIN_VALUE = 1;
     public static final int MAX_VALUE = 6;
 
@@ -21,8 +20,9 @@ public class Dice {
      * Erstellt einen neuen Würfel mit einem zufälligen Wert.
      */
     public Dice() {
-        roll();
-        held = false;
+        // Direkte Zuweisung statt roll() im Konstruktor verwenden
+        this.value = random.nextInt(MAX_VALUE) + MIN_VALUE;
+        this.held = false;
     }
 
     /**

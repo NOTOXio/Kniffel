@@ -69,7 +69,6 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
     @FXML private VBox mainVBox;
     @FXML private TextField player1NameField;
     @FXML private TextField player2NameField;
-    @FXML private Button startGameButton;
     @FXML private ToggleButton computerOpponentCheckBox;
 
     private final List<Player> players = new ArrayList<>();
@@ -164,6 +163,16 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
             // Spalten für Spieler-Punktestände
             player1Col.setCellValueFactory(new PropertyValueFactory<>("player1Score"));
             player2Col.setCellValueFactory(new PropertyValueFactory<>("player2Score"));
+
+            // Tabelle nicht anklickbar machen und Focus-Shadow entfernen
+            categoryTable.setMouseTransparent(true); // Macht die Tabelle nicht anklickbar
+            categoryTable.setFocusTraversable(false); // Verhindert, dass die Tabelle den Fokus erhält
+
+            // Entferne den Focus-Style
+            categoryTable.setStyle(categoryTable.getStyle() +
+                "-fx-faint-focus-color: transparent; " +
+                "-fx-focus-color: transparent; " +
+                "-fx-effect: dropshadow(gaussian, rgba(203, 213, 225, 0.5), 8, 0.0, 0, 2);");
 
             updateCategoryTable();
         }
@@ -524,13 +533,7 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
         timeline.play();
     }
 
-    /**
-     * Aktualisiert die gesamte Benutzeroberfläche mit dem aktuellen Spielstand.
-     * Setzt standardmäßig die Würfel zurück.
-     */
-    private void updateUI() {
-        updateUI(true);
-    }
+    // Diese Methode wurde entfernt, da sie nie direkt aufgerufen wird und updateUI(true) redundant ist
 
     /**
      * Aktualisiert die gesamte Benutzeroberfläche mit dem aktuellen Spielstand.
@@ -640,6 +643,27 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
     private void updateCategoryTable() {
         if (categoryTable == null) return;
 
+        // Status-Spalte mit eigenem Cell Factory für farbliche Markierung
+        statusCol.setCellFactory(column -> {
+            return new javafx.scene.control.TableCell<CategoryRow, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        if ("Eingelöst".equals(item)) {
+                            setStyle("-fx-text-fill: #16a34a; -fx-font-weight: bold;"); // Grüne Textfarbe für "Eingelöst"
+                        } else {
+                            setStyle("-fx-text-fill: #64748b;"); // Graue Textfarbe für "Offen"
+                        }
+                    }
+                }
+            };
+        });
+
         ObservableList<CategoryRow> data = FXCollections.observableArrayList();
 
         if (game == null) {
@@ -680,9 +704,7 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
             data.add(new CategoryRow(cat.getDisplayName(), status, currentValue, player1Score, player2Score));
         }
 
-        categoryTable.setItems(data);
-
-        // Farbliche Markierung für bereits eingelöste Kategorien hinzufügen
+        categoryTable.setItems(data);        // Farbliche Markierung für bereits eingelöste Kategorien hinzufügen
         categoryTable.setRowFactory(tv -> new javafx.scene.control.TableRow<CategoryRow>() {
             @Override
             protected void updateItem(CategoryRow item, boolean empty) {
@@ -695,9 +717,14 @@ public class GameController implements GameOverPanel.GameOverPanelHandler {
 
                 // Wenn Status "Eingelöst" ist, die Zeile farblich markieren
                 if (item.getStatus().equals("Eingelöst")) {
-                    setStyle("-fx-background-color: #e6f7ef;"); // Helles Grün für eingelöste Kategorien
+                    // Deutlichere Farbgebung für eingelöste Kategorien (kräftigeres Grün mit Border)
+                    setStyle("-fx-background-color: #bbf7d0; " + // Kräftigeres Grün
+                             "-fx-border-color: #86efac; " +     // Grüner Rahmen
+                             "-fx-border-width: 0 0 1 0; " +     // Nur untere Kante
+                             "-fx-font-weight: normal;");        // Normale Schrift
                 } else {
-                    setStyle(""); // Standard-Stil für offene Kategorien
+                    // Weißer Hintergrund für offene Kategorien
+                    setStyle("-fx-background-color: white;");
                 }
             }
         });

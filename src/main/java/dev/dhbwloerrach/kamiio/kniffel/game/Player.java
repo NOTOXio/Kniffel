@@ -10,7 +10,6 @@ import java.util.Map;
  * Punktestand und die genutzten Kategorien. Sie wird von konkreten Spielertypen erweitert.
  */
 public abstract class Player {
-    // Felder mit angemessener Zugriffssteuerung
     private final String name;
     private int score;
     private final Map<Category, Integer> categoryScores;
@@ -37,7 +36,6 @@ public abstract class Player {
         this.categoryScores = new EnumMap<>(Category.class);
         this.usedCategories = new EnumMap<>(Category.class);
 
-        // Initialisiere alle Kategorien
         for (Category cat : Category.values()) {
             usedCategories.put(cat, false);
             categoryScores.put(cat, 0);
@@ -83,7 +81,6 @@ public abstract class Player {
         categoryScores.put(category, points);
         usedCategories.put(category, true);
 
-        // Prüfe auf Bonus im oberen Bereich
         checkAndAddUpperSectionBonus();
     }
 
@@ -176,9 +173,6 @@ public abstract class Player {
      */
     private void checkAndAddUpperSectionBonus() {
         if (hasUpperSectionBonus()) {
-            // Da wir keinen expliziten Bonus-Eintrag haben, wird der Bonus
-            // automatisch zur Gesamtpunktzahl addiert, wenn der Schwellenwert
-            // überschritten wird
             if (!isUpperSectionBonusAdded) {
                 score += UPPER_SECTION_BONUS;
                 isUpperSectionBonusAdded = true;
